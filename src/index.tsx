@@ -30,8 +30,6 @@ axios.interceptors.response.use(undefined, (error) => {
   if (status === 403) {
     return alert(`${status} - Invalid authorization token`);
   }
-
-  alert(`${status} - Something went wrong`);
 });
 
 const container = document.getElementById("app");
@@ -50,3 +48,4 @@ root.render(
     </BrowserRouter>
   </React.StrictMode>
 );
+
