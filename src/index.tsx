@@ -6,6 +6,7 @@ import { ThemeProvider } from "@mui/material/styles";
 import { BrowserRouter } from "react-router-dom";
 import { QueryClient, QueryClientProvider } from "react-query";
 import { ReactQueryDevtools } from "react-query/devtools";
+import axios from "axios";
 import { theme } from "~/theme";
 
 const queryClient = new QueryClient({
@@ -18,6 +19,18 @@ if (import.meta.env.DEV) {
   const { worker } = await import("./mocks/browser");
   worker.start({ onUnhandledRequest: "bypass" });
 }
+
+axios.interceptors.response.use(undefined, (error) => {
+  const { response: { status } = { status: 0 } } = error;
+
+  if (status === 401) {
+    return alert(`${status} - Unauthenticated`);
+  }
+
+  if (status === 403) {
+    return alert(`${status} - Invalid authorization token`);
+  }
+});
 
 const container = document.getElementById("app");
 // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
@@ -35,3 +48,4 @@ root.render(
     </BrowserRouter>
   </React.StrictMode>
 );
+

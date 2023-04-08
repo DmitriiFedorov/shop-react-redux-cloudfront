@@ -1,11 +1,26 @@
 import React from "react";
 import Typography from "@mui/material/Typography";
 import Box from "@mui/material/Box";
-import axios from "axios";
+import axios, { AxiosRequestHeaders } from "axios";
 
 type CSVFileImportProps = {
   url: string;
   title: string;
+};
+
+const getAuthToken = () => {
+  return localStorage.getItem("authorization_token");
+};
+
+const getHeaders = () => {
+  const authToken = getAuthToken();
+  const result: AxiosRequestHeaders = {};
+
+  if (authToken) {
+    result.Authorization = `Basic ${getAuthToken()}`;
+  }
+
+  return result;
 };
 
 export default function CSVFileImport({ url, title }: CSVFileImportProps) {
@@ -26,23 +41,20 @@ export default function CSVFileImport({ url, title }: CSVFileImportProps) {
   const uploadFile = async () => {
     if (!file) return;
 
-    // Get the presigned URL
-    const response = await axios({
-      method: "GET",
-      url,
-      params: {
-        name: encodeURIComponent(file.name),
-      },
-    });
-
     try {
+      // Get the presigned URL
+      const response = await axios.get(url, {
+        params: {
+          name: encodeURIComponent(file.name),
+        },
+        headers: getHeaders(),
+      });
+
       await fetch(response.data, {
         method: "PUT",
         body: file,
       });
-    } catch (error) {
-      console.log({ error });
-    }
+    } catch (error) {}
     setFile(undefined);
   };
   return (
