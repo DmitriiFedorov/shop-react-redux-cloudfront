@@ -35,8 +35,12 @@ export default function PageOrder() {
     {
       queryKey: ["order", { id }],
       queryFn: async () => {
-        const res = await axios.get<Order>(`${API_PATHS.order}/order/${id}`);
-        return res.data;
+        const res = await axios.get<{ data: Order }>(
+          `${API_PATHS.order}/order/${id}`
+        );
+
+        // TODO: consider a better way to return data from server side in order to make the same shape for stabs and real api responses
+        return res.data.data ?? res.data;
       },
     },
     {
@@ -60,7 +64,9 @@ export default function PageOrder() {
       return order.items.map((item: OrderItem) => {
         const product = products.find((p) => p.id === item.productId);
         if (!product) {
-          throw new Error("Product not found");
+          // TODO: temp solution because route /product/available is not implemented hence there are no suitable products for this page yet
+          return { product: products[0], count: item.count };
+          // throw new Error("Product not found");
         }
         return { product, count: item.count };
       });
@@ -172,3 +178,4 @@ export default function PageOrder() {
     </PaperLayout>
   ) : null;
 }
+
